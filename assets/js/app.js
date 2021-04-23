@@ -3,10 +3,10 @@ var svgWidth = 960;
 var svgHeight = 500;
 
 var margin = {
-  top: 20,
+  top: 40,
   right: 40,
   bottom: 80,
-  left: 100
+  left: 30
 };
 
 var chartWidth = svgWidth - margin.left - margin.right;
@@ -17,8 +17,9 @@ var chartHeight = svgHeight - margin.top - margin.bottom;
 var svg = d3
   .select("#scatter")
   .append("svg")
-  .attr("width", svgWidth)
-  .attr("height", svgHeight);
+  .attr("preserveAspectRatio", "xMinYMin meet")
+  .attr("viewBox", "0 0 900 500")
+  .classed("chart", true); ;
 
 // Append an SVG group
 var chartGroup = svg.append("g")
@@ -28,14 +29,56 @@ var chartGroup = svg.append("g")
 // Read data file data.csv
 d3.csv("assets/data/data.csv").then(function(censusData) {
 
-     //print parsed data
-   console.log('parsed data:' , censusData)
+    //print data
+    console.log('Actual Data:' , censusData)
 
-  
+        // parse data
+        censusData.forEach(function(data) {
+            data.poverty = +data.poverty ;
+            data.age = +data.age ;
+            data.income = +data.income ;
+            data.healthcare = +data.healthcare ;
+            data.obesity = +data.obesity ;
+            data.smokes = +data.smokes ;    
+    });
 
-   //print parsed data
-   console.log('parsed data:' , censusData)
+    //print parsed data
+    console.log('parsed data:' , censusData)
 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // create X and Y scales
+    ///////////////////////////////////////////////////////////////////////////////////////
 
+    //X scale
+    var xTimeScale = d3.scaleLinear()
+    .domain([d3.min(censusData, d => d.poverty) , d3.max(censusData, d => d.poverty)])
+    .range([0, chartWidth]);
+
+    //print min and max values for xscale
+    console.log('xscale Min and Max:' , d3.min(censusData, d => d.poverty)  , d3.max(censusData, d => d.poverty) )
+    
+    //Y scale
+    var yLinearScale = d3.scaleLinear()
+    .domain([d3.min(censusData, d => d.healthcare)  , d3.max(censusData, d => d.healthcare)])
+    .range([chartHeight, 0]);
+
+    //print min and max values for yscale
+    console.log('yscale Min and Max:' , d3.min(censusData, d => d.healthcare)  , d3.max(censusData, d => d.healthcare) )
+   
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //Create and Append Axes
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    // create axes
+    var xAxis = d3.axisBottom(xTimeScale);
+    var yAxis = d3.axisLeft(yLinearScale);
+
+    // append axes
+    chartGroup.append("g")
+      .attr("transform", `translate(0, ${chartHeight})`)
+      .call(xAxis);
+
+    chartGroup.append("g")
+      .call(yAxis);
   
 });
