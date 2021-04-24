@@ -6,13 +6,13 @@
 
 //Step 1 : Set SVG height and width inside the div container with id '#satter'
 var svgWidth = 960;
-var svgHeight = 500;
+var svgHeight = 600;
 
 var margin = {
   top: 40,
   right: 40,
-  bottom: 80,
-  left: 50
+  bottom: 100,
+  left: 100
 };
 
 var chartWidth = svgWidth - margin.left - margin.right;
@@ -29,18 +29,20 @@ var svg = d3
   .select("#scatter")
   .append("svg")
   .attr("preserveAspectRatio", "xMinYMin meet")
-  .attr("viewBox", "0 0 900 500")
+  .attr("viewBox", "0 0 960 600")
   .classed("chart", true); ;
 
 // Append an SVG group
 var chartGroup = svg.append("g")
   .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
+
 //==================================================================//
 //STEP 3:   - Use d3.csv promise function to get data from data.csv file 
 //          - Parse data to convert string values to numbers
 //          - print to check
 //=================================================================//
+
 // Read data file data.csv
 d3.csv("assets/data/data.csv").then(function(censusData) {
 
@@ -114,7 +116,7 @@ d3.csv("assets/data/data.csv").then(function(censusData) {
     circlesGroup.append("circle")
     .attr("cx", d => xScale(d.poverty))
     .attr("cy", d => yScale(d.healthcare))
-    .attr("r", "16")
+    .attr("r", "15")
     .attr("class", "stateCircle")
     .attr("opacity", ".8")
 
@@ -126,28 +128,84 @@ d3.csv("assets/data/data.csv").then(function(censusData) {
                   return xScale(d.poverty);
               })
               .attr("y", function (d) {
-                  return (yScale(d.healthcare)+6);
+                  return (yScale(d.healthcare)+5);
               }).attr("class", "stateText")
             
 
 // ================================================================// 
-// Step 7:    - Create X and Y titles
+// Step 7:    - Create a group for axis labels
+//            - Create X and Y titles
 //            - Append text elements to chart group
 // ===============================================================//
   
-// Create X title
+// Create a group
+
+
+// // Create X title
+// var labelsGroup = chartGroup.append("g")
+//     .attr("transform", `translate(${width / 2}, ${height + 20})`);
+
 chartGroup.append("text")
     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top -5})`)
-    .classed("atext", true)
+    .classed("aText", true)
     .text("In Poverty (%)");
 
 //Create Y title
 chartGroup.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left )
-      .attr("x", 0 - (chartHeight / 2 + 50))
+      .attr("y", 0 - margin.left +60)
+      .attr("x", 0 - (chartHeight / 2))
       .attr("dy", "1em")
-      .attr("class", "axisText")
+      .attr("class", "aText")
       .text("Lacks Healthcare (%)");
+
+
+
+
+//=====================================================================//
+// Bonus: More Data, More Dynamics
+
+// Step 8:    - Add more labels to X and Y
+// ===============================================================//
+
+
+// Create X title
+//-----------------//
+
+//1: Add Age(Median) to X axis
+chartGroup.append("text")
+    .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top + 18})`)
+    .classed("aText", true)
+    .text("Age (Median)")
+
+//2: Add Household Income(Median) to X axis
+chartGroup.append("text")
+    .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top + 40})`)
+    .classed("aText", true)
+    .text("Household Income (Median)")
+
+// Create Y title
+//----------------//
+
+//1: Add Smokes(%) to Y axis
+chartGroup.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left + 40)
+      .attr("x", 0 - (chartHeight / 2))
+      .attr("dy", "1em")
+      .attr("class", "aText")
+      .text("Smokes (%)");
+
+//2: Add Obese(%) to Y axis
+chartGroup.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left +20)
+      .attr("x", 0 - (chartHeight / 2))
+      .attr("dy", "1em")
+      .attr("class", "aText")
+      .text("Obese (%)");
+
+
+
 
 });
