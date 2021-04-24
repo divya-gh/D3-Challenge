@@ -175,13 +175,13 @@ chartGroup.append("text")
 //1: Add Age(Median) to X axis
 chartGroup.append("text")
     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top + 18})`)
-    .classed("aText", true)
+    .classed("aText inactive inactive:hover", true)
     .text("Age (Median)")
 
 //2: Add Household Income(Median) to X axis
 chartGroup.append("text")
     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top + 40})`)
-    .classed("aText", true)
+    .classed("aText inactive inactive:hover", true)
     .text("Household Income (Median)")
 
 // Create Y title
@@ -193,7 +193,7 @@ chartGroup.append("text")
       .attr("y", 0 - margin.left + 40)
       .attr("x", 0 - (chartHeight / 2))
       .attr("dy", "1em")
-      .attr("class", "aText")
+      .attr("class", "aText inactive inactive:hover")
       .text("Smokes (%)");
 
 //2: Add Obese(%) to Y axis
@@ -202,10 +202,52 @@ chartGroup.append("text")
       .attr("y", 0 - margin.left +20)
       .attr("x", 0 - (chartHeight / 2))
       .attr("dy", "1em")
-      .attr("class", "aText")
+      .attr("class", "aText inactive inactive:hover")
       .text("Obese (%)");
 
+ //=====================================================================//
+// Step 8:    - Create charts based on the selection of tiles on X and Y axis
+//            - For all the text elements with class .aText, find their values when clicked
+//            - Use lacks Healthcare and Pverty as default titles
+//            - update the domain of xscale and yscale based on the title
+// ===============================================================//     
+      
+      //create a function to handle events
+      chartGroup.selectAll(".aText")
+      .on("click", function() {
+        // get value of the selection
+        var value = d3.select(this).text();      
+      console.log(`Value of clicked title : ${value}`)
 
+      //set default values 
+      var xValue = "In Poverty (%)" ;
+      var yValue = "Lacks Healthcare (%)" ;
+
+      if(value === xValue) {
+        xValue = 'poverty' ;
+
+      }
+      else if(value === 'Age (Median)') {
+        xValue = 'age' ;
+              }
+      else if(value === 'Household Income (Median)') {
+        xValue = 'income' ;
+              }
+      else if(value === yValue) {
+        yValue = 'healthcare' ;
+              }
+      else if(value === 'Smokes (%)') {
+        yValue = 'smokes' ;
+              }  
+      else if(value === 'Obese (%)') {
+        yValue = 'obesity' ;
+              }     
+      //change the domain of x and y scale
+      xScale.domain([d3.min(censusData, d => d[xValue]) -0.9 , d3.max(censusData, d => d[xValue]) +1])
+
+      yScale.domain([d3.min(censusData, d => d[yValue])-1 , d3.max(censusData, d => d[yValue]) +2])
+
+} )
 
 
 });
