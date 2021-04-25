@@ -1,6 +1,6 @@
 .aText {
   font-family: 'lucida Sans';
-  font-size: 12px;
+  font-size: 13px;
   text-anchor: middle;
   font-weight: bold;
 }
@@ -8,20 +8,21 @@
 .active {
   font-weight: bold;
   fill: #000;
-  transition: fill 0.3s ease-out;
+  transition: fill 0.7s ease-out;
   text-anchor: middle;
 }
 
 .inactive {
   font-weight: lighter;
-  fill: #c9c9c9;
-  transition: fill 0.3s ease-out;
+  fill: #ccb3b3;
+  transition: fill 0.9s ease-out;
   text-anchor: middle;
 }
 
 .inactive:hover {
-  fill: #000;
+  fill: rgb(4, 20, 240);
   cursor: pointer;
+  font-weight: bold;
 }
 
 /* font size dependent on radius, see app.js */
