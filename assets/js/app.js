@@ -65,23 +65,19 @@ d3.csv("assets/data/data.csv").then(function(censusData) {
   //==================================================================//
   //STEP 4:   - Create X and Y scales
   //=================================================================//
-    
-    //X scale
-    var xScale = d3.scaleLinear()
-    .domain([d3.min(censusData, d => d.poverty) -0.9 , d3.max(censusData, d => d.poverty) +1])
-    .range([0, chartWidth]);
 
-    //print min and max values for xscale
-    console.log('xscale Min and Max:' , d3.min(censusData, d => d.poverty)  , d3.max(censusData, d => d.poverty) )
-    
-    //Y scale
-    var yScale = d3.scaleLinear()
-    .domain([d3.min(censusData, d => d.healthcare)-1 , d3.max(censusData, d => d.healthcare) +2])
-    .range([chartHeight, 0]);
+  //Set default x and y values
+    var xValue = "poverty" ;
+    var yValue = "healthcare" ;
 
-    //print min and max values for yscale
-    console.log('yscale Min and Max:' , d3.min(censusData, d => d.healthcare)  , d3.max(censusData, d => d.healthcare) )
-   
+    // Call the function to calculate xScale and YScale for default x and y values
+    xyScales = createScales(censusData, xValue, yValue) ;
+
+    //Get Xscale and YScale
+    xScale = xyScales[0];
+    yScale = xyScales[1];
+    
+    
     //==================================================================//
     //STEP 5:   - Create and append Axes
     //=================================================================//
@@ -91,11 +87,11 @@ d3.csv("assets/data/data.csv").then(function(censusData) {
     var yAxis = d3.axisLeft(yScale);
 
     // append axes
-    chartGroup.append("g")
+    var xGroup = chartGroup.append("g").classed("xaxis", "true")
       .attr("transform", `translate(0, ${chartHeight})`)
       .call(xAxis);
 
-    chartGroup.append("g")
+    var yGroup = chartGroup.append("g").classed("yaxis", "true")
       .call(yAxis);
   
 
@@ -138,16 +134,10 @@ d3.csv("assets/data/data.csv").then(function(censusData) {
 //            - Append text elements to chart group
 // ===============================================================//
   
-// Create a group
-
-
-// // Create X title
-// var labelsGroup = chartGroup.append("g")
-//     .attr("transform", `translate(${width / 2}, ${height + 20})`);
-
+// Create X title
 chartGroup.append("text")
     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top -5})`)
-    .classed("aText", true)
+    .classed("aText xtitle", true)
     .text("In Poverty (%)");
 
 //Create Y title
@@ -156,11 +146,8 @@ chartGroup.append("text")
       .attr("y", 0 - margin.left +60)
       .attr("x", 0 - (chartHeight / 2))
       .attr("dy", "1em")
-      .attr("class", "aText")
+      .attr("class", "ytitle aText")
       .text("Lacks Healthcare (%)");
-
-
-
 
 //=====================================================================//
 // Bonus: More Data, More Dynamics
@@ -171,17 +158,16 @@ chartGroup.append("text")
 
 // Create X title
 //-----------------//
-
 //1: Add Age(Median) to X axis
 chartGroup.append("text")
     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top + 18})`)
-    .classed("aText inactive inactive:hover", true)
+    .classed("xtitle aText inactive inactive:hover", true)
     .text("Age (Median)")
 
 //2: Add Household Income(Median) to X axis
 chartGroup.append("text")
     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top + 40})`)
-    .classed("aText inactive inactive:hover", true)
+    .classed("xtitle aText inactive inactive:hover", true)
     .text("Household Income (Median)")
 
 // Create Y title
@@ -193,7 +179,7 @@ chartGroup.append("text")
       .attr("y", 0 - margin.left + 40)
       .attr("x", 0 - (chartHeight / 2))
       .attr("dy", "1em")
-      .attr("class", "aText inactive inactive:hover")
+      .attr("class", "ytitle aText inactive inactive:hover")
       .text("Smokes (%)");
 
 //2: Add Obese(%) to Y axis
@@ -202,7 +188,7 @@ chartGroup.append("text")
       .attr("y", 0 - margin.left +20)
       .attr("x", 0 - (chartHeight / 2))
       .attr("dy", "1em")
-      .attr("class", "aText inactive inactive:hover")
+      .attr("class", "ytitle aText inactive inactive:hover")
       .text("Obese (%)");
 
  //=====================================================================//
@@ -212,42 +198,184 @@ chartGroup.append("text")
 //            - update the domain of xscale and yscale based on the title
 // ===============================================================//     
       
-      //create a function to handle events
-      chartGroup.selectAll(".aText")
+    //create a function to handle events
+    chartGroup.selectAll(".aText")
       .on("click", function() {
+
         // get value of the selection
-        var value = d3.select(this).text();      
-      console.log(`Value of clicked title : ${value}`)
+          var value = d3.select(this).text();      
+          console.log(`Value of clicked title : ${value}`)
 
-      //set default values 
-      var xValue = "In Poverty (%)" ;
-      var yValue = "Lacks Healthcare (%)" ;
+          //call function createXY to slect x and y values based on selection
+          var xyValue = createXY(value, xValue, yValue) ;
 
-      if(value === xValue) {
-        xValue = 'poverty' ;
+          xValue = xyValue[0] ;
+          yValue = xyValue[1] ;
 
-      }
-      else if(value === 'Age (Median)') {
-        xValue = 'age' ;
+          //print 
+          console.log(`XValue : ${xValue} \n YValue : ${yValue}`)
+
+          //change the domain of x and y scale
+          //==================================//
+          if(value === 'In Poverty (%)' || value === 'Age (Median)' || value === 'Household Income (Median)'){
+              //calculate i for scaling - call function calcI
+              var iMinMAx = calcI(value) ;
+
+              //update xscale- domain        
+              xScale.domain([d3.min(censusData, d => d[xValue]) - iMinMAx[0] , d3.max(censusData, d => d[xValue]) + iMinMAx[1]])
+              console.log('New xScale Min and Max:' , d3.min(censusData, d => d[xValue]) , d3.max(censusData, d => d[xValue]))
+          }
+          else {
+              //calculate i for scaling - call function calcI
+              var jMinMAx = calcJ(value) ;
+
+              //update yscale- domain  
+              yScale.domain([d3.min(censusData, d => d[yValue])-jMinMAx[0] , d3.max(censusData, d => d[yValue]) + jMinMAx[1]])
+              console.log('New yScale Min and Max:', d3.min(censusData, d => d[yValue]) , d3.max(censusData, d => d[yValue]))
               }
-      else if(value === 'Household Income (Median)') {
-        xValue = 'income' ;
-              }
-      else if(value === yValue) {
-        yValue = 'healthcare' ;
-              }
-      else if(value === 'Smokes (%)') {
-        yValue = 'smokes' ;
-              }  
-      else if(value === 'Obese (%)') {
-        yValue = 'obesity' ;
-              }     
-      //change the domain of x and y scale
-      xScale.domain([d3.min(censusData, d => d[xValue]) -0.9 , d3.max(censusData, d => d[xValue]) +1])
+          
+          
+          // updates x axis with transition
+          xGroup.transition().duration(500).call(d3.axisBottom(xScale))
+          yGroup.transition().duration(500).call(d3.axisLeft(yScale)) 
 
-      yScale.domain([d3.min(censusData, d => d[yValue])-1 , d3.max(censusData, d => d[yValue]) +2])
+          //make selected title active
+          d3.select(this).classed('inactive inactive:hover', false)
 
-} )
+          //update data or circles for x and y vlaues- create a scatter plot          
+          circlesGroup.selectAll("circle")
+                      .transition()
+                      .duration(500)
+                      .attr("cx", d => xScale(d[xValue]))
+                      .attr("cy", d => yScale(d[yValue]))
+
+          
+          //update text(abbr) based on the selection
+          circlesGroup.selectAll("text")
+                      .transition()
+                      .duration(100)
+                      .attr("x", d => xScale(d[xValue]))
+                      .attr("y", d => yScale(d[yValue])+3)
+                      
+
+           });
 
 
 });
+
+
+//=======================================================================================//
+// Function to create XScale and YScale
+//======================================================================================//
+
+function createScales(censusData, xValue, yValue) {
+      //X scale
+      var xScale = d3.scaleLinear()
+                     .domain([d3.min(censusData, d => d[xValue]) -1 , d3.max(censusData, d => d[xValue]) +2])
+                     .range([0, chartWidth]);
+
+      //print min and max values for xscale
+      console.log('xscale Min and Max:' , d3.min(censusData, d => d[xValue])  , d3.max(censusData, d => d[xValue]) )
+
+      //Y scale
+      var yScale = d3.scaleLinear()
+                     .domain([d3.min(censusData, d => d[yValue])-1 , d3.max(censusData, d => d[yValue]) +3])
+                     .range([chartHeight, 0]);
+
+      //print min and max values for yscale
+      console.log('yscale Min and Max:' , d3.min(censusData, d => d[yValue])  , d3.max(censusData, d => d[yValue]) )
+      
+      return [xScale, yScale]
+}
+
+
+//=======================================================================================//
+// Function to select X and Y value to create scales
+//======================================================================================//
+
+function  createXY(value,xValue, yValue){
+  //set default values 
+  
+  if(value === 'In Poverty (%)') {
+    xValue = 'poverty' ;
+
+    // Make the title inactive if not selected
+    chartGroup.selectAll(".xtitle").classed('inactive inactive:hover', true)
+
+  }
+  else if(value === 'Age (Median)') {
+    xValue = 'age' ;
+    // Make the title inactive if not selected
+    chartGroup.selectAll(".xtitle").classed('inactive inactive:hover', true)        
+          }
+  else if(value === 'Household Income (Median)') {
+    xValue = 'income' ;
+    // Make the title inactive if not selected
+    chartGroup.selectAll(".xtitle").classed('inactive inactive:hover', true)
+              }
+  else if(value === 'Lacks Healthcare (%)') {
+    yValue = 'healthcare' ;
+    // Make the title inactive if not selected
+    chartGroup.selectAll(".ytitle").classed('inactive inactive:hover', true)
+          }
+  else if(value === 'Smokes (%)') {
+    yValue = 'smokes' ;
+    // Make the title inactive if not selected
+    chartGroup.selectAll(".ytitle").classed('inactive inactive:hover', true)
+          }  
+  else if(value === 'Obese (%)') {
+    yValue = 'obesity' ;
+    // Make the title inactive if not selected
+    chartGroup.selectAll(".ytitle").classed('inactive inactive:hover', true)
+          }  
+
+  return [xValue , yValue] ;
+}
+
+//=======================================================================================//
+// Function to i for x scaling
+//======================================================================================//
+
+function calcI(value){
+
+  var iMin = 0 ;
+  var iMax = 0;
+
+  if(value === 'Age (Median)') {
+    iMin= 3.5 ;
+    iMax = 5 ;
+  }
+  else if(value === 'Household Income (Median)') {
+    iMin =  3000;
+    iMax = 9000 ;
+  }
+  else {
+    iMin= 1 ;
+    iMax = 2
+  }
+  return [iMin, iMax] ;
+}
+
+//=======================================================================================//
+// Function to j for y scaling
+//======================================================================================//
+
+function calcJ(value){
+
+  var jMin = 0 ;
+  var jMax = 0;
+
+  if(value === 'Smokes (%)') {
+    jMin= 1.5 ;
+    jMax = 3 ;
+  }
+  else if(value === 'Obese (%)') {
+    jMin = 3;
+    jMax = 4 ;
+  }
+  else {
+    jMin= 1 ;
+    jMax = 3
+  }
+  return [jMin, jMax] ;
+}
