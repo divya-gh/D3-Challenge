@@ -192,7 +192,7 @@ chartGroup.append("text")
       .text("Obese (%)");
 
  //=====================================================================//
-// Step 8:    - Create charts based on the selection of tiles on X and Y axis
+// Step 9:    - Create charts based on the selection of tiles on X and Y axis
 //            - For all the text elements with class .aText, find their values when clicked
 //            - Use lacks Healthcare and Pverty as default titles
 //            - update the domain of xscale and yscale based on the title
@@ -257,10 +257,30 @@ chartGroup.append("text")
                       .attr("x", d => xScale(d[xValue]))
                       .attr("y", d => yScale(d[yValue])+3)
                       
+        //set toolip
+        //setToolTip(chartGroup , toolTip ,xvalue, yValue) ;
+      });
 
-           });
+  //=====================================================================//
+  // Bonus 2:  Incorporate d3-tip
+  // Step 10:    - Initialize tool tip
+  //             - set values to to circles
+  // ===============================================================//
+  
+    // Step 10: Initialize tool tip
+    var toolTip = d3.tip()
+                    .attr("class", "d3-tip")
+                    .offset([20, 60])
+                    .html( d => `${d.state}<br>${xValue}: ${d[xValue]}<br>${yValue}: ${d[yValue]}`);
+    
+    //Create tooltip in the chart
+    chartGroup.call(toolTip);
 
-
+    //Event listeners to display and hide the tooltip
+    //On mouseover,
+    chartGroup.selectAll('g').on("mouseover", d => toolTip.show(d, this))
+    // onmouseout,
+                .on("mouseout", d => toolTip.hide(d)) ;
 });
 
 
