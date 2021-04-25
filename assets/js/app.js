@@ -103,10 +103,11 @@ d3.csv("assets/data/data.csv").then(function(censusData) {
   // ===============================================================//
   
   //Create groups and bind data
-  var circlesGroup = chartGroup.selectAll("g")
+  var circlesGroup = chartGroup.selectAll(".gr")
     .data(censusData)
     .enter()
     .append('g')
+    .classed("gr" , true)
     
   //append circles to each group 
     circlesGroup.append("circle")
@@ -152,7 +153,7 @@ chartGroup.append("text")
 //=====================================================================//
 // Bonus: More Data, More Dynamics
 
-// Step 8:    - Add more labels to X and Y
+// Step 8: - Add more labels to X and Y
 // ===============================================================//
 
 
@@ -257,8 +258,7 @@ chartGroup.append("text")
                       .attr("x", d => xScale(d[xValue]))
                       .attr("y", d => yScale(d[yValue])+3)
                       
-        //set toolip
-        //setToolTip(chartGroup , toolTip ,xvalue, yValue) ;
+        
       });
 
   //=====================================================================//
@@ -271,7 +271,7 @@ chartGroup.append("text")
     var toolTip = d3.tip()
                     .attr("class", "d3-tip")
                     .offset([20, 60])
-                    .html( d => `${d.state}<br>${xValue}: ${d[xValue]}<br>${yValue}: ${d[yValue]}`);
+                    .html( d => `${d.state}<br>${xValue}: ${d[xValue]}%<br>${yValue}: ${d[yValue]}%`);
     
     //Create tooltip in the chart
     chartGroup.call(toolTip);
