@@ -15,7 +15,7 @@ body {
   padding-top:60px;
 }
 
-#footer {
+.footer {
   position: absolute;
   bottom: 0;
   width: 100%; /* Set the fixed height of the footer here */
@@ -28,10 +28,10 @@ body {
   
 }
 
-#footer p {
+.footer p {
   margin: 0;
-  font-size: 13px;
-  font-family: Lucida Sans;
+  font-size: 14px;
+  font-family: 'Lucida Sans';
   
 }
 
